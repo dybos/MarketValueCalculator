@@ -11,110 +11,51 @@ namespace MarketValueCalculator
     {
         static void Main()
         {
-            Price[] prices = GetPrices();
-            Position[] positions = GetPositions();
-
-            // Assumptions: in the list of Price, there is only one price for each ProductKey. If the product key would be repeated in Price[], Dictionary would use price which appear first.
-            // ToDo: we could add statement which could check also the date of the object. Reason for this solution could be dynamic changing price for our financial product, but in this task we
-            // assume that price is constant for
-
-            // new assumptions 02.05 - In the list of Price, there is only one price for each ProductKey on each date.
-
-
-
-
-
-/*
- 
-
-
-
-
-
-
-            Dictionary<Position, decimal> marketValuesByPosition = new Dictionary<Position, decimal>();
-
-            foreach (Position position in positions)
+            try
             {
-                Price price = prices.FirstOrDefault(p => p.ProductKey == position.ProductKey);
-                if (price != null)
+                Price[] prices = GetPrices();
+                Position[] positions = GetPositions();
+
+                // Assumptions: in the list of Price, there is only one price for each ProductKey. For each pair in Date and ProductKey in Position there is one same pair in Price.
+                // ToDo: we could add statement which could check also the date of the object. Reason for this solution could be dynamic changing price for our financial product, but in this task we
+                // assume that price is constant for
+
+                // new assumptions 02.05 - In the list of Price, there is only one price for each ProductKey on each date.
+
+                var keyToPriceValues = prices.ToDictionary(price => $"{price.Date:dd-MM-yyyy}_{price.ProductKey}", price => price.Value);
+                var keyToPositionAmounts = positions.ToDictionary(pos => $"{pos.Date:dd-MM-yyyy}_{pos.ProductKey}", pos => pos.Amount);
+
+                foreach (var entry in keyToPositionAmounts)
                 {
-                    decimal marketValueByPosition = price.Value * position.Amount;
-                    marketValuesByPosition[position] = marketValueByPosition;
+                    var amount = entry.Value;
+                    var price = keyToPriceValues[entry.Key];
+                    Console.WriteLine($"Market value:{price * amount} for {entry.Key}");
+
                 }
+                Console.ReadKey();
             }
-
-            foreach (var kvp in marketValuesByPosition)
+            catch (Exception ex)
             {
-                Console.WriteLine($"Position {kvp.Key.Amount} of product {kvp.Key.ProductKey} has market value {kvp.Value:C} on date {kvp.Key.Date}");
+                Console.WriteLine($"Exception occurred:{ex.Message}");
+                Console.ReadKey();
             }
-
-
-
-            
-             Dictionary<string, decimal> marketValuesByProduct = new Dictionary<string, decimal>();
-
-             foreach (Position position in positions)
-                {
-                Price price = prices.FirstOrDefault(p => p.ProductKey == position.ProductKey);
-                if (price != null)
-                {
-                    decimal marketValue = price.Value * position.Amount;
-
-                    if (marketValuesByProduct.ContainsKey(position.ProductKey))
-                    {
-                         marketValuesByProduct[position.ProductKey] += marketValue;
-                    }
-                    else
-                    {
-                        marketValuesByProduct[position.ProductKey] = marketValue;
-                    }
-                }
-            }
-
-        foreach (var kvp in marketValuesByProduct)
-        {
-            Console.WriteLine($"Product {kvp.Key} has market value {kvp.Value:C}");
         }
-
-            Console.WriteLine("Click any button to exit");
-            Console.ReadKey();
-       
-         */   
-           
-            var priceValueByDateAndProductKey = prices.ToDictionary(price => $"{price.Date:dd-MM-yyyy}_{price.ProductKey}", price => price.Value);
-            var amountValueByDateAndProductKey = positions.ToDictionary(pos => $"{pos.Date:dd-MM-yyyy}_{pos.ProductKey}", pos => pos.Amount);
-
-            foreach ( var productKey in amountValueByDateAndProductKey)
-            {
-                var amount = productKey.Value;
-                var price = priceValueByDateAndProductKey[productKey.Key];
-                Console.WriteLine($"Market value:{price * amount} for {productKey.Key}");
-
-            }
-            Console.ReadKey();
-        }
-
-
-
-
-
-
-
-
-
-
-
 
         private static Position[] GetPositions()
         {
-            Position[] positions = new Position[5];
-            positions[0] = new Position { Date = DateTime.Today, Amount = 1, ProductKey = "A" };
-            positions[1] = new Position { Date = DateTime.Today, Amount = 2, ProductKey = "B" };
-            positions[2] = new Position { Date = DateTime.Today, Amount = 3, ProductKey = "C" };
-            positions[3] = new Position { Date = DateTime.Today, Amount = 4, ProductKey = "D" };
-            positions[4] = new Position { Date = DateTime.Today, Amount = 5, ProductKey = "E" };
+            Position[] positions = new Position[]
+            {
+                new Position { Date = DateTime.Today, Amount = 1, ProductKey = "A" },
+                new Position { Date = DateTime.Today.AddDays(-1), Amount = 2, ProductKey = "B" },
+                new Position { Date = DateTime.Today.AddDays(-2), Amount = 3, ProductKey = "C" },
+                new Position { Date = DateTime.Today.AddDays(-3), Amount = 4, ProductKey = "D" },
+                new Position { Date = DateTime.Today.AddDays(-4), Amount = 5, ProductKey = "E" },
+            };
             return positions;
+
+
+            // TODO code for creating the data not working properly - appears some nulls in value, have to investigate or re-write.
+
             //Random random = new Random();
             //string[] productKeys = Enumerable.Range('A', 'Z' - 'A' + 1).Select(c => ((char)c).ToString()).ToArray();
             //int dateRange = 100;
@@ -136,36 +77,42 @@ namespace MarketValueCalculator
         }
 
 
-        static Price[] GetPrices()
+        private static Price[] GetPrices()
         {
-            Price[] prices = new Price[5];
-            prices[0] = new Price { Date = DateTime.Today, Value = 1, ProductKey = "A" };
-            prices[1] = new Price { Date = DateTime.Today, Value = 2, ProductKey = "B" };
-            prices[2] = new Price { Date = DateTime.Today, Value = 3, ProductKey = "C" };
-            prices[3] = new Price { Date = DateTime.Today, Value = 4, ProductKey = "D" };
-            prices[4] = new Price { Date = DateTime.Today, Value = 5, ProductKey = "E" };
+            Price[] prices = new Price[]
+            {
+                new Price { Date = DateTime.Today, Value = 1, ProductKey = "A" },
+                new Price { Date = DateTime.Today.AddDays(-1), Value = 2, ProductKey = "B" },
+                new Price { Date = DateTime.Today.AddDays(-2), Value = 3, ProductKey = "C" },
+                new Price { Date = DateTime.Today.AddDays(-3), Value = 4, ProductKey = "D" },
+                new Price { Date = DateTime.Today.AddDays(-4), Value = 5, ProductKey = "E" },
+            };
+
 
             return prices;
-            //Random random = new Random();
-            //string[] productKeys = Enumerable.Range('A', 'Z' - 'A' + 1).Select(c => ((char)c).ToString()).ToArray();
-            //int valueRange = 1000;
-            //int numPrices = 4000;
 
-            //Price[] prices = new Price[numPrices];
+        // TODO code for creating the data not working properly - appears some nulls in value, have to investigate or re-write.
+        
+            //    string[] productKeys = Enumerable.Range('A', 'Z' - 'A' + 1).Select(c => ((char)c).ToString()).ToArray();
+        //    int daysCount = 4000;
 
-            //for (int i = 0; i < numPrices; i++)
-            //{
-            //    DateTime date = DateTime.Today.AddDays(i - numPrices);
-            //    for (int j = 0; j < productKeys.Length; j++)
-            //         {
-            //            decimal value = random.Next(1, valueRange + 1);
-            //            string productKey = productKeys[j];
-            //            prices[i * productKeys.Length + j] = new Price { Date = date, Value = value, ProductKey = productKey };
-            //         }
-            //}
+        //    var prices = new Price[daysCount * productKeys.Length];
+             
+        //    for (int i = 0; i < daysCount - 1; i++)
+        //    {
+        //        DateTime date = DateTime.Today.AddDays(-1*i);
+        //        var pricesForDay = GetPricesForDay(productKeys, date);
 
-            //return prices;
+        //        for (int j = 0; j < pricesForDay.Length - 1; j++)
+        //        {
+        //            prices[i * pricesForDay.Length + j] = pricesForDay[j];
+        //        }
+
+        //    }
+
+        //    return prices;
         }
+
 
     }
 }
