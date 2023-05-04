@@ -16,7 +16,8 @@ namespace MarketValueCalculator
                 Price[] prices = GetPrices();
                 Position[] positions = GetPositions();
 
-                // Assumptions: in the list of Price, there is only one price for each ProductKey. For each pair in Date and ProductKey in Position there is one same pair in Price.
+                // Assumptions: in the list of Price, there is only one price for each ProductKey. For each pair in Date and ProductKey in Position there is one same pair in Price - if not, exception:
+                // System.Collections.Generic.KeyNotFoundException. will appear.
                 // ToDo: we could add statement which could check also the date of the object. Reason for this solution could be dynamic changing price for our financial product, but in this task we
                 // assume that price is constant for
 
@@ -32,6 +33,18 @@ namespace MarketValueCalculator
                     Console.WriteLine($"Market value:{price * amount} for {entry.Key}");
 
                 }
+                // Alternative solution: using the LINQ instead the dictonaries:
+                //var marketValues = from p in GetPrices()
+                //                   join pos in GetPositions()
+                //                   on new { p.ProductKey, p.Date } equals new { pos.ProductKey, pos.Date }
+                //                   select new { Key = $"{p.Date:dd-MM-yyyy}_{p.ProductKey}", Value = p.Value * pos.Amount };
+
+                //foreach (var marketValue in marketValues)
+                //{
+                //    Console.WriteLine($"Market value:{marketValue.Value} for {marketValue.Key}");
+                //}
+                //Solution has been verified, code is working.
+
                 Console.ReadKey();
             }
             catch (Exception ex)
@@ -91,26 +104,7 @@ namespace MarketValueCalculator
 
             return prices;
 
-        // TODO code for creating the data not working properly - appears some nulls in value, have to investigate or re-write.
-        
-            //    string[] productKeys = Enumerable.Range('A', 'Z' - 'A' + 1).Select(c => ((char)c).ToString()).ToArray();
-        //    int daysCount = 4000;
 
-        //    var prices = new Price[daysCount * productKeys.Length];
-             
-        //    for (int i = 0; i < daysCount - 1; i++)
-        //    {
-        //        DateTime date = DateTime.Today.AddDays(-1*i);
-        //        var pricesForDay = GetPricesForDay(productKeys, date);
-
-        //        for (int j = 0; j < pricesForDay.Length - 1; j++)
-        //        {
-        //            prices[i * pricesForDay.Length + j] = pricesForDay[j];
-        //        }
-
-        //    }
-
-        //    return prices;
         }
 
 
